@@ -98,8 +98,4 @@ Endpoint	Method	Description
 - 💼 Developer & System Designer
 - 📧 [extaciafakero@gmail.com]
 
-### 📝 License
-This project is licensed under the MIT License — see the LICENSE file for details.
-
-- Would you like me to generate a **lightweight version** for GitHub README preview or include **badges**, a **diagram**, or **setup video/demo instructions**?
 
