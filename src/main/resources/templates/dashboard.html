@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Smart Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>Smart Usage Dashboard</h2>
+<canvas id="usageChart" width="800" height="400"></canvas>
+
+<script>
+    const ctx = document.getElementById('usageChart');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                { label: 'Water Usage', data: [], borderColor: 'blue', fill: false },
+                { label: 'Electricity Usage', data: [], borderColor: 'green', fill: false }
+            ]
+        }
+    });
+
+    fetch("/api/data/all").then(res => res.json()).then(data => {
+        data.forEach(d => {
+            chart.data.labels.push(d.timestamp.split("T")[0]);
+            chart.data.datasets[0].data.push(d.waterUsage);
+            chart.data.datasets[1].data.push(d.electricityUsage);
+        });
+        chart.update();
+    });
+
+    const socket = new SockJS("/ws");
+    const stomp = Stomp.over(socket);
+    stomp.connect({}, () => {
+        stomp.subscribe("/topic/usage", (msg) => {
+            const d = JSON.parse(msg.body);
+            chart.data.labels.push(d.timestamp.split("T")[0]);
+            chart.data.datasets[0].data.push(d.waterUsage);
+            chart.data.datasets[1].data.push(d.electricityUsage);
+            chart.update();
+        });
+    });
+</script>
+</body>
+</html>
